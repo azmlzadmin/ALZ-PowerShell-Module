@@ -11,7 +11,7 @@ coverage.xml
 .Trashes
 ehthumbs.db
 Thumbs.db
-src/ALZ/Assets/alz-bicep-internal/
+src/AzureMigrate.ALZ/Assets/AzureMigrate.ALZ-bicep-internal/
 test_output/
 hcl2json_windows_amd64.exe
 
@@ -53,5 +53,5 @@ templates/basic/terraform.tfvars
 templates/.test_azuredevops
 templates/.test_github
 .vscode/settings.json
-/ALZ
+/AzureMigrate.ALZ
 .tools

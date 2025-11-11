@@ -3,8 +3,7 @@ param(
     [string]$prerelease = ""
 )
 
-New-Item "ALZ" -ItemType Directory -Force
-Copy-Item -Path "./src/Artifacts/*" -Destination "./ALZ" -Recurse -Exclude "ccReport", "testOutput"  -Force
+New-Item "AzureMigrate.ALZ" -ItemType Directory -Force
+Copy-Item -Path "./src/Artifacts/*" -Destination "./AzureMigrate.ALZ" -Recurse -Exclude "ccReport", "testOutput"  -Force
 
-Update-ModuleManifest -Path "./ALZ/ALZ.psd1" -ModuleVersion $version -Prerelease $prerelease
-
+Update-ModuleManifest -Path "./AzureMigrate.ALZ/AzureMigrate.ALZ.psd1" -ModuleVersion $version -Prerelease $prerelease

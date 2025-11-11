@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------
 Set-Location -Path $PSScriptRoot
 #-------------------------------------------------------------------------
-$ModuleName = 'ALZ'
+$ModuleName = 'AzureMigrate.ALZ'
 $PathToManifest = [System.IO.Path]::Combine('..', '..', '..', $ModuleName, "$ModuleName.psd1")
 #-------------------------------------------------------------------------
 if (Get-Module -Name $ModuleName -ErrorAction 'SilentlyContinue') {
@@ -11,7 +11,7 @@ if (Get-Module -Name $ModuleName -ErrorAction 'SilentlyContinue') {
 Import-Module $PathToManifest -Force
 #-------------------------------------------------------------------------
 
-InModuleScope 'ALZ' {
+InModuleScope 'AzureMigrate.ALZ' {
     BeforeAll {
         $testFile1Name = "test.parameters.all.json"
 
