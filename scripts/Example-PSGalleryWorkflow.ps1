@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Example workflow for publishing AzureMigrate.ALZ module to PowerShell Gallery.
+    Example workflow for publishing AMA.ALZ module to PowerShell Gallery.
 
 .DESCRIPTION
-    This script demonstrates a complete workflow for publishing the AzureMigrate.ALZ module
+    This script demonstrates a complete workflow for publishing the AMA.ALZ module
     to PowerShell Gallery, including validation, status checks, and publishing.
 
 .PARAMETER ApiKey
@@ -62,7 +62,7 @@ function Write-WorkflowStep {
     )
 
     Write-Host ""
-    Write-Host "STEP $Step: $Title" -ForegroundColor Magenta
+    # Write-Host "STEP $Step:$Title" -ForegroundColor Magenta
     Write-Host ("-" * 50) -ForegroundColor Gray
     Write-Host $Description -ForegroundColor Cyan
     Write-Host ""

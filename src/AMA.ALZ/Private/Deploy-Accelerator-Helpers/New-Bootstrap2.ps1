@@ -1,4 +1,4 @@
-function New-Bootstrap {
+function New-Bootstrap2 {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(Mandatory = $false)]
@@ -61,7 +61,7 @@ function New-Bootstrap {
         $starterAdditionalFiles = @()
     )
 
-    if ($PSCmdlet.ShouldProcess("AzureMigrate.ALZ-Terraform module configuration", "modify")) {
+    if ($PSCmdlet.ShouldProcess("AMA.ALZ-Terraform module configuration", "modify")) {
 
         $bootstrapPath = Join-Path $bootstrapTargetPath $bootstrapRelease
         $starterPath = Join-Path $starterTargetPath $starterRelease
@@ -177,7 +177,7 @@ function New-Bootstrap {
             }
         }
 
-        Write-Verbose "Final Input config: $(ConvertTo-Json $inputConfig -Depth 100)"
+        Write-Verbose "Final Input config: $(ConvertTo-SafeLogString $inputConfig)"
 
         # Getting the input for the bootstrap module
         Write-Verbose "Setting the configuration for the bootstrap module..."
@@ -192,7 +192,7 @@ function New-Bootstrap {
             -inputConfig $inputConfig `
             -copyEnvVarToConfig
 
-        Write-Verbose "Final Starter Parameters: $(ConvertTo-Json $starterParameters -Depth 100)"
+        Write-Verbose "Final Starter Parameters: $(ConvertTo-SafeLogString $starterParameters)"
 
         # Creating the tfvars files for the bootstrap and starter module
         $tfVarsFileName = "terraform.tfvars.json"
@@ -269,15 +269,6 @@ function New-Bootstrap {
             Remove-UnrequiredFileSet -path $starterModulePath -foldersOrFilesToRetain $foldersOrFilesToRetain -subFoldersOrFilesToRemove $subFoldersOrFilesToRemove -writeVerboseLogs:$writeVerboseLogs.IsPresent
         }
 
-        # Running terraform init and apply
-        Write-InformationColored "Thank you for providing those inputs, we are now initializing and applying Terraform to bootstrap your environment..." -ForegroundColor Green -NewLineBefore -InformationAction Continue
-
-        if($autoApprove) {
-            Invoke-Terraform -moduleFolderPath $bootstrapModulePath -autoApprove -destroy:$destroy.IsPresent
-        } else {
-            Write-InformationColored "Once the plan is complete you will be prompted to confirm the apply." -ForegroundColor Green -NewLineBefore -InformationAction Continue
-            Invoke-Terraform -moduleFolderPath $bootstrapModulePath -destroy:$destroy.IsPresent
-        }
 
         Write-InformationColored "Bootstrap has completed successfully! Thanks for using our tool. Head over to Phase 3 in the documentation to continue..." -ForegroundColor Green -NewLineBefore -InformationAction Continue
     }

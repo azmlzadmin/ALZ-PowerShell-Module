@@ -11,7 +11,7 @@ function Request-SpecialInput {
         [PSCustomObject] $bootstrapModules
     )
 
-    if ($PSCmdlet.ShouldProcess("AzureMigrate.ALZ-Terraform module configuration", "modify")) {
+    if ($PSCmdlet.ShouldProcess("AMA.ALZ-Terraform module configuration", "modify")) {
 
         $result = ""
         $options = @()

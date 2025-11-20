@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Publishes the AzureMigrate.ALZ PowerShell module to the PowerShell Gallery.
+    Publishes the AMA.ALZ PowerShell module to the PowerShell Gallery.
 
 .DESCRIPTION
-    This script publishes the AzureMigrate.ALZ module to the PowerShell Gallery using the module manifest file.
+    This script publishes the AMA.ALZ module to the PowerShell Gallery using the module manifest file.
     It validates the module before publishing and handles authentication using API keys.
 
 .PARAMETER ModulePath
@@ -121,7 +121,7 @@ function Test-ModuleForPublishing {
     Write-ColorOutput "Validating module at: $Path" -ForegroundColor Yellow
 
     # Check if manifest file exists
-    $manifestPath = Join-Path -Path $Path -ChildPath 'AzureMigrate.ALZ.psd1'
+    $manifestPath = Join-Path -Path $Path -ChildPath 'AMA.ALZ.psd1'
     if (-not (Test-Path $manifestPath)) {
         throw "Module manifest file not found: $manifestPath"
     }

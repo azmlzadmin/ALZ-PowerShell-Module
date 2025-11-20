@@ -113,7 +113,7 @@ function Deploy-Accelerator {
         )]
         [Alias("bc")]
         [Alias("bootstrapConfigPath")]
-        [string] $bootstrap_config_path = ".config/AzureMigrate.ALZ-Powershell.config.json",
+        [string] $bootstrap_config_path = ".config/AMA.ALZ-Powershell.config.json",
 
         [Parameter(
             Mandatory = $false,
@@ -180,7 +180,7 @@ function Deploy-Accelerator {
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = "[OPTIONAL] Determines whether to skip the requirements check for the AzureMigrate.ALZ PowerShell Module version only. This is not recommended."
+            HelpMessage = "[OPTIONAL] Determines whether to skip the requirements check for the AMA.ALZ PowerShell Module version only. This is not recommended."
         )]
         [Alias("skipAlzModuleVersionRequirementsCheck")]
         [switch] $skip_alz_module_version_requirements_check

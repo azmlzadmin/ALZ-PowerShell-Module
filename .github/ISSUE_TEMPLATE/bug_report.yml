@@ -63,8 +63,8 @@ body:
   - type: textarea
     id: inputs
     attributes:
-      label: Input arguments of the AzureMigrate.ALZ-PowerShell-Module (Optional)
-      description: Please provide any relevant input arguments of the AzureMigrate.ALZ PowerShell Module that can reproduce the issue.
+      label: Input arguments of the AMA.ALZ-PowerShell-Module (Optional)
+      description: Please provide any relevant input arguments of the AMA.ALZ PowerShell Module that can reproduce the issue.
     validations:
       required: false
   - type: textarea

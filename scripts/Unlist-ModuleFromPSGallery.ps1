@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Unlists a specific version of the AzureMigrate.ALZ PowerShell module from the PowerShell Gallery.
+    Unlists a specific version of the AMA.ALZ PowerShell module from the PowerShell Gallery.
 
 .DESCRIPTION
     This script unlists a specific version of the module from the PowerShell Gallery.
@@ -8,7 +8,7 @@
     by users who already have dependencies on that specific version.
 
 .PARAMETER ModuleName
-    The name of the module to unlist. Defaults to 'AzureMigrate.ALZ'.
+    The name of the module to unlist. Defaults to 'AMA.ALZ'.
 
 .PARAMETER Version
     The specific version to unlist. This parameter is mandatory.
@@ -28,7 +28,7 @@
 .EXAMPLE
     .\Unlist-ModuleFromPSGallery.ps1 -Version "0.1.0" -ApiKey "your-api-key"
 
-    Unlists version 0.1.0 of the AzureMigrate.ALZ module from PowerShell Gallery.
+    Unlists version 0.1.0 of the AMA.ALZ module from PowerShell Gallery.
 
 .EXAMPLE
     .\Unlist-ModuleFromPSGallery.ps1 -Version "0.1.0" -WhatIf
@@ -36,7 +36,7 @@
     Shows what would happen without actually unlisting.
 
 .EXAMPLE
-    .\Unlist-ModuleFromPSGallery.ps1 -ModuleName "AzureMigrate.ALZ" -Version "0.1.0" -Force
+    .\Unlist-ModuleFromPSGallery.ps1 -ModuleName "AMA.ALZ" -Version "0.1.0" -Force
 
     Forces unlisting without confirmation prompts.
 
@@ -52,7 +52,7 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter()]
-    [string]$ModuleName = 'AzureMigrate.ALZ',
+    [string]$ModuleName = 'AMA.ALZ',
 
     [Parameter(Mandatory = $true)]
     [string]$Version,

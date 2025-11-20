@@ -29,7 +29,7 @@ function New-FolderStructure {
         [string] $githubToken
     )
 
-    if ($PSCmdlet.ShouldProcess("AzureMigrate.ALZ-Terraform module configuration", "modify")) {
+    if ($PSCmdlet.ShouldProcess("AMA.ALZ-Terraform module configuration", "modify")) {
         Write-Verbose "Downloading modules to $targetDirectory"
 
         if (!($release.StartsWith("v")) -and ($release -ne "latest")) {

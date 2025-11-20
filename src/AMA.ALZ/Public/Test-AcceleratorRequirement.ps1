@@ -13,12 +13,12 @@ function Test-AcceleratorRequirement {
     .NOTES
         This function is used by the Deploy-Accelerator function to ensure that the software requirements are met before attempting run the Accelerator.
     .COMPONENT
-        AzureMigrate.ALZ
+        AMA.ALZ
     #>
     param (
         [Parameter(
             Mandatory = $false,
-            HelpMessage = "[OPTIONAL] Determines whether to skip the requirements check for the AzureMigrate.ALZ PowerShell Module version only. This is not recommended."
+            HelpMessage = "[OPTIONAL] Determines whether to skip the requirements check for the AMA.ALZ PowerShell Module version only. This is not recommended."
         )]
         [Alias("skipAlzModuleVersionRequirementsCheck")]
         [switch] $skip_alz_module_version_requirements_check

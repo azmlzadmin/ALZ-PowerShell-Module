@@ -156,29 +156,29 @@ function Test-Tooling {
     }
 
     if($skipAlzModuleVersionCheck.IsPresent) {
-        Write-Verbose "Skipping AzureMigrate.ALZ module version check"
+        Write-Verbose "Skipping AMA.ALZ module version check"
     } else {
-        # Check if latest AzureMigrate.ALZ module is installed
-        Write-Verbose "Checking AzureMigrate.ALZ module version"
-        $alzModuleCurrentVersion = Get-InstalledModule -Name AzureMigrate.ALZ -ErrorAction SilentlyContinue
+        # Check if latest AMA.ALZ module is installed
+        Write-Verbose "Checking AMA.ALZ module version"
+        $alzModuleCurrentVersion = Get-InstalledModule -Name AMA.ALZ -ErrorAction SilentlyContinue
         if($null -eq $alzModuleCurrentVersion) {
             $checkResults += @{
-                message = "AzureMigrate.ALZ module is not correctly installed. Please install the latest version using 'Install-Module AzureMigrate.ALZ'."
+                message = "AMA.ALZ module is not correctly installed. Please install the latest version using 'Install-Module AMA.ALZ'."
                 result  = "Failure"
             }
             $hasFailure = $true
         }
-        $alzModuleLatestVersion = Find-Module -Name AzureMigrate.ALZ
+        $alzModuleLatestVersion = Find-Module -Name AMA.ALZ
         if ($null -ne $alzModuleCurrentVersion) {
             if ($alzModuleCurrentVersion.Version -lt $alzModuleLatestVersion.Version) {
                 $checkResults += @{
-                    message = "AzureMigrate.ALZ module is not the latest version. Your version: $($alzModuleCurrentVersion.Version), Latest version: $($alzModuleLatestVersion.Version). Please update to the latest version using 'Update-Module AzureMigrate.ALZ'."
+                    message = "AMA.ALZ module is not the latest version. Your version: $($alzModuleCurrentVersion.Version), Latest version: $($alzModuleLatestVersion.Version). Please update to the latest version using 'Update-Module AMA.ALZ'."
                     result  = "Failure"
                 }
                 $hasFailure = $true
             } else {
                 $checkResults += @{
-                    message = "AzureMigrate.ALZ module is the latest version ($($alzModuleCurrentVersion.Version))."
+                    message = "AMA.ALZ module is the latest version ($($alzModuleCurrentVersion.Version))."
                     result  = "Success"
                 }
             }

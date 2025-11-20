@@ -36,7 +36,7 @@ jobs:
         run: ./actions_bootstrap.ps1
       - name: Test and Build
         shell: pwsh
-        run: Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+        run: Invoke-Build -File .\src\AMA.ALZ.build.ps1
       - name: Upload pester results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -55,28 +55,28 @@ jobs:
           config-name: prerelease-drafter.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Package AzureMigrate.ALZ Module
+      - name: Package AMA.ALZ Module
         shell: pwsh
         run: |
           $tag_version = "${{ steps.create_release.outputs.tag_name }}".Replace("-alpha", "")
           ./package_ALZ.ps1 -version $tag_version -prerelease alpha
       - uses: montudor/action-zip@a8e75c9faefcd80fac3baf53ef40b9b119d5b702 # v1
         with:
-          args: zip -qq -r AzureMigrate.ALZ.zip AzureMigrate.ALZ
+          args: zip -qq -r AMA.ALZ.zip AMA.ALZ
       - uses: actions/upload-release-asset@64e5e85fc528f162d7ba7ce2d15a3bb67efb3d80 # v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AzureMigrate.ALZ.zip
-          asset_name: AzureMigrate.ALZ.zip
+          asset_path: ./AMA.ALZ.zip
+          asset_name: AMA.ALZ.zip
           asset_content_type: application/zip
       - uses: eregon/publish-release@01df127f5e9a3c26935118e22e738d95b59d10ce # v1.0.6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           release_id: ${{ steps.create_release.outputs.id }}
-      - name: Publish AzureMigrate.ALZ Module
+      - name: Publish AMA.ALZ Module
         shell: pwsh
         run: |
-          Publish-Module -Path "./AzureMigrate.ALZ" -NuGetApiKey ${{ secrets.POWERSHELL_GALLERY_KEY }} -ReleaseNotes "${{ steps.create_release.outputs.body }}" -Force
+          Publish-Module -Path "./AMA.ALZ" -NuGetApiKey ${{ secrets.POWERSHELL_GALLERY_KEY }} -ReleaseNotes "${{ steps.create_release.outputs.body }}" -Force

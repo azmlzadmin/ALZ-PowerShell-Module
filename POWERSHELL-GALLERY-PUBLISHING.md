@@ -1,6 +1,6 @@
 # PowerShell Gallery Publishing Guide
 
-This guide provides comprehensive instructions for publishing, updating, and managing the AzureMigrate.ALZ PowerShell module in the PowerShell Gallery using the provided scripts.
+This guide provides comprehensive instructions for publishing, updating, and managing the AMA.ALZ PowerShell module in the PowerShell Gallery using the provided scripts.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ This guide provides comprehensive instructions for publishing, updating, and man
 
 ## Overview
 
-The AzureMigrate.ALZ module includes a comprehensive set of PowerShell scripts for managing module publication to the PowerShell Gallery. These scripts provide:
+The AMA.ALZ module includes a comprehensive set of PowerShell scripts for managing module publication to the PowerShell Gallery. These scripts provide:
 
 - ✅ **Secure API key management**
 - 🔍 **Module validation and status checking**
@@ -59,7 +59,7 @@ This approach ensures that only the necessary module files are published, avoidi
 Ensure the module is built and available in the `src/Artifacts` directory:
 ```powershell
 # From the root directory
-Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+Invoke-Build -File .\src\AMA.ALZ.build.ps1
 ```
 
 ## Quick Start
@@ -104,7 +104,7 @@ Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
    - Sign in with your Microsoft account
    - Navigate to Account → API Keys
    - Click "Create" and configure permissions:
-     - Package name pattern: `AzureMigrate.ALZ*`
+     - Package name pattern: `AMA.ALZ*`
      - Allow Push new packages: ✅
      - Allow Push new package versions: ✅
      - Allow Unlist packages: ✅ (optional)
@@ -116,7 +116,7 @@ Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
 1. **Build the Module**:
    ```powershell
    # From root directory
-   Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+   Invoke-Build -File .\src\AMA.ALZ.build.ps1
    ```
 
 2. **Validate Module for Publishing**:
@@ -194,9 +194,9 @@ Module found in PSGallery:
   Latest Version: 0.1.0
   Total Versions: 1
   Download Count: 25
-What if: Performing the operation "Publish to PSGallery" on target "AzureMigrate.ALZ".
+What if: Performing the operation "Publish to PSGallery" on target "AMA.ALZ".
 Publishing module to PSGallery...
-Path: C:\Path\To\Module\AzureMigrate.ALZ.psd1
+Path: C:\Path\To\Module\AMA.ALZ.psd1
 Repository: PSGallery
 NuGetApiKey: [PROTECTED]
 ```
@@ -263,7 +263,7 @@ $env:PSGalleryApiKey = "your-api-key"
 
 ```powershell
 # 1. Build module (from root directory)
-Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+Invoke-Build -File .\src\AMA.ALZ.build.ps1
 
 # 2. Validate module
 .\scripts\Manage-PSGalleryModule.ps1 -Action ValidateOnly
@@ -282,7 +282,7 @@ Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
 
 ```powershell
 # 1. Build updated module (from root directory)
-Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+Invoke-Build -File .\src\AMA.ALZ.build.ps1
 
 # 2. Check current status
 .\scripts\Manage-PSGalleryModule.ps1 -Action Status
@@ -340,7 +340,7 @@ $env:PSGalleryApiKey = "your-api-key"
 #### Issue: "Module manifest validation failed"
 ```powershell
 # Solution: Check manifest file
-Test-ModuleManifest .\src\AzureMigrate.ALZ\AzureMigrate.ALZ.psd1
+Test-ModuleManifest .\src\AMA.ALZ\AMA.ALZ.psd1
 ```
 
 #### Issue: "Version must be higher than existing version"
@@ -349,13 +349,13 @@ Test-ModuleManifest .\src\AzureMigrate.ALZ\AzureMigrate.ALZ.psd1
 .\scripts\Manage-PSGalleryModule.ps1 -Action Status
 
 # Update version in manifest file, then rebuild
-Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+Invoke-Build -File .\src\AMA.ALZ.build.ps1
 ```
 
 #### Issue: "Module path not found"
 ```powershell
 # Solution: Build module first
-Invoke-Build -File .\src\AzureMigrate.ALZ.build.ps1
+Invoke-Build -File .\src\AMA.ALZ.build.ps1
 ```
 
 ### Debug Mode
@@ -451,5 +451,5 @@ Get-Help .\scripts\Manage-PSGalleryModule.ps1 -Examples
 ---
 
 **Last Updated**: August 11, 2025
-**Module**: AzureMigrate.ALZ
+**Module**: AMA.ALZ
 **Version**: Compatible with all module versions

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Sets up PowerShell Gallery API key configuration for the AzureMigrate.ALZ module.
+    Sets up PowerShell Gallery API key configuration for the AMA.ALZ module.
 
 .DESCRIPTION
     This script helps configure the PowerShell Gallery API key for publishing operations.
@@ -43,7 +43,7 @@
 
 .NOTES
     - API keys can be obtained from https://www.powershellgallery.com/account/apikeys
-    - Requires appropriate permissions for the AzureMigrate.ALZ module
+    - Requires appropriate permissions for the AMA.ALZ module
     - Environment variables set with 'User' scope persist across sessions
 #>
 
@@ -97,7 +97,7 @@ function Show-Instructions {
     Write-ColorOutput "4. Click 'API Keys' in the menu" -ForegroundColor Cyan
     Write-ColorOutput "5. Click 'Create' to generate a new API key" -ForegroundColor Cyan
     Write-ColorOutput "6. Configure the key with appropriate permissions:" -ForegroundColor Cyan
-    Write-ColorOutput "   - Package name pattern: AzureMigrate.ALZ*" -ForegroundColor White
+    Write-ColorOutput "   - Package name pattern: AMA.ALZ*" -ForegroundColor White
     Write-ColorOutput "   - Allow Push new packages and package versions: Yes" -ForegroundColor White
     Write-ColorOutput "   - Allow Push only new package versions: Yes" -ForegroundColor White
     Write-ColorOutput "   - Allow Unlist packages: Yes (if needed)" -ForegroundColor White

@@ -6,7 +6,7 @@ function Set-ComputedConfiguration {
         [PSCustomObject] $configuration
     )
 
-    if ($PSCmdlet.ShouldProcess("AzureMigrate.ALZ-Bicep computed configuration.", "calculate computed values")) {
+    if ($PSCmdlet.ShouldProcess("AMA.ALZ-Bicep computed configuration.", "calculate computed values")) {
         foreach ($configKey in $configuration.PsObject.Properties) {
             if ("calculated" -ne $configKey.Value.Source) {
                 continue;

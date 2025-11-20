@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Comprehensive PowerShell Gallery management script for the AzureMigrate.ALZ module.
+    Comprehensive PowerShell Gallery management script for the AMA.ALZ module.
 
 .DESCRIPTION
-    This script provides a unified interface for managing the AzureMigrate.ALZ module in PowerShell Gallery.
+    This script provides a unified interface for managing the AMA.ALZ module in PowerShell Gallery.
     It supports publishing, updating, unlisting, and checking status of the module.
 
 .PARAMETER Action
@@ -28,7 +28,7 @@
     Forces the action without additional confirmation prompts.
 
 .PARAMETER ModuleName
-    The name of the module. Defaults to 'AzureMigrate.ALZ'.
+    The name of the module. Defaults to 'AMA.ALZ'.
 
 .EXAMPLE
     .\Manage-PSGalleryModule.ps1 -Action Publish -ApiKey "your-api-key"
@@ -84,7 +84,7 @@ param(
     [switch]$Force,
 
     [Parameter()]
-    [string]$ModuleName = 'AzureMigrate.ALZ'
+    [string]$ModuleName = 'AMA.ALZ'
 )
 
 # Set error action preference
@@ -457,7 +457,7 @@ function Invoke-UnlistAction {
 
 # Main execution
 try {
-    Write-SectionHeader "POWERSHELL GALLERY MANAGEMENT - AzureMigrate.ALZ MODULE"
+    Write-SectionHeader "POWERSHELL GALLERY MANAGEMENT - AMA.ALZ MODULE"
     Write-ColorOutput "Action: $Action" -ForegroundColor Magenta
     Write-ColorOutput "Repository: $Repository" -ForegroundColor Cyan
     Write-ColorOutput "Module: $ModuleName" -ForegroundColor Cyan

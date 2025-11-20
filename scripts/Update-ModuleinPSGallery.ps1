@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Updates an existing AzureMigrate.ALZ PowerShell module in the PowerShell Gallery.
+    Updates an existing AMA.ALZ PowerShell module in the PowerShell Gallery.
 
 .DESCRIPTION
     This script updates an existing module in the PowerShell Gallery with a new version.
@@ -122,7 +122,7 @@ function Test-ModuleForUpdate {
     Write-ColorOutput "Validating module at: $Path" -ForegroundColor Yellow
 
     # Check if manifest file exists
-    $manifestPath = Join-Path -Path $Path -ChildPath 'AzureMigrate.ALZ.psd1'
+    $manifestPath = Join-Path -Path $Path -ChildPath 'AMA.ALZ.psd1'
     if (-not (Test-Path $manifestPath)) {
         throw "Module manifest file not found: $manifestPath"
     }
