@@ -1,2 +1,2 @@
-Invoke-Build -File .\src\ALZ.build.ps1
-Import-Module .\src\Artifacts\ALZ.psd1 -Force
+Invoke-Build -File .\src\AMA.ALZ.build.ps1
+Import-Module .\src\Artifacts\AMA.ALZ.psd1 -Force

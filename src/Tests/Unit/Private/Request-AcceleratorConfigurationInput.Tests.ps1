@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------
 Set-Location -Path $PSScriptRoot
 #-------------------------------------------------------------------------
-$ModuleName = 'ALZ'
+$ModuleName = 'AMA.ALZ'
 $PathToManifest = [System.IO.Path]::Combine('..', '..', '..', $ModuleName, "$ModuleName.psd1")
 #-------------------------------------------------------------------------
 if (Get-Module -Name $ModuleName -ErrorAction 'SilentlyContinue') {
@@ -10,7 +10,7 @@ if (Get-Module -Name $ModuleName -ErrorAction 'SilentlyContinue') {
 Import-Module $PathToManifest -Force
 #-------------------------------------------------------------------------
 
-InModuleScope 'ALZ' {
+InModuleScope 'AMA.ALZ' {
     Describe 'Request-AcceleratorConfigurationInput Function Tests' -Tag Unit {
         BeforeAll {
             $WarningPreference = 'SilentlyContinue'

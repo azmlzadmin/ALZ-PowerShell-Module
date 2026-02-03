@@ -30,7 +30,7 @@ jobs:
         run: ./actions_bootstrap.ps1
       - name: Test and Build
         shell: pwsh
-        run: Invoke-Build -File .\src\ALZ.build.ps1
+        run: Invoke-Build -File .\src\AMA.ALZ.build.ps1
       - name: Upload pester results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

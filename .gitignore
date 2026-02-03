@@ -11,7 +11,7 @@ coverage.xml
 .Trashes
 ehthumbs.db
 Thumbs.db
-src/ALZ/Assets/alz-bicep-internal/
+src/AMA.ALZ/Assets/alz-bicep-internal/
 test_output/
 hcl2json_windows_amd64.exe
 
@@ -53,6 +53,6 @@ templates/basic/terraform.tfvars
 templates/.test_azuredevops
 templates/.test_github
 .vscode/settings.json
-/ALZ
+/AMA.ALZ
 .tools
 .cache

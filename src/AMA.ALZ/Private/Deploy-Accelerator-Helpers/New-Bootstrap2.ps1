@@ -1,0 +1,268 @@
+function New-Bootstrap2 {
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param (
+        [Parameter(Mandatory = $false)]
+        [string] $iac,
+
+        [Parameter(Mandatory = $false)]
+        [PSCustomObject] $bootstrapDetails,
+
+        [Parameter(Mandatory = $false)]
+        [PSCustomObject] $validationConfig,
+
+        [Parameter(Mandatory = $false)]
+        [PSCustomObject] $inputConfig,
+
+        [Parameter(Mandatory = $false)]
+        [string] $bootstrapTargetPath,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $hasStarter,
+
+        [Parameter(Mandatory = $false)]
+        [string] $starterTargetPath,
+
+        [Parameter(Mandatory = $false)]
+        [PSCustomObject] $starterConfig = $null,
+
+        [Parameter(Mandatory = $false)]
+        [string] $bootstrapRelease,
+
+        [Parameter(Mandatory = $false)]
+        [string] $starterRelease,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $autoApprove,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $destroy,
+
+        [Parameter(Mandatory = $false)]
+        [PSCustomObject] $zonesSupport = $null,
+
+        [Parameter(Mandatory = $false, HelpMessage = "An extra level of logging that is turned off by default for easier debugging.")]
+        [switch]
+        $writeVerboseLogs,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $hclParserToolPath,
+
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $convertTfvarsToJson,
+
+        [Parameter(Mandatory = $false)]
+        [string[]]
+        $inputConfigFilePaths = @(),
+
+        [Parameter(Mandatory = $false)]
+        [string[]]
+        $starterAdditionalFiles = @()
+    )
+
+    if ($PSCmdlet.ShouldProcess("AMA.ALZ-Terraform module configuration", "modify")) {
+
+        $bootstrapPath = Join-Path $bootstrapTargetPath $bootstrapRelease
+        $starterPath = Join-Path $starterTargetPath $starterRelease
+        $bootstrapModulePath = Join-Path -Path $bootstrapPath -ChildPath $bootstrapDetails.Value.location
+
+        Write-Verbose "Bootstrap Module Path: $bootstrapModulePath"
+
+        # Get starter module
+        $starterModulePath = ""
+        $starterRootModuleFolder = ""
+        $starterRootModuleFolderPath = ""
+        $starterFoldersToRetain = @()
+
+        if ($hasStarter) {
+            if (!$inputConfig.starter_module_name.Value) {
+                Write-ToConsoleLog "No starter module has been specified. Please supply the starter module you wish to deploy..." -IsError
+                throw "No starter module has been specified. Please supply the starter module you wish to deploy..."
+            }
+
+            $starter_module_name = $inputConfig.starter_module_name.Value.Trim()
+
+            $chosenStarterConfig = $starterConfig.starter_modules.Value.$($starter_module_name)
+
+            if ($null -eq $chosenStarterConfig ) {
+                Write-ToConsoleLog "The starter module name '$($starter_module_name)' does not exist in the starter configuration. Please check your input and try again." -IsError
+                throw "The starter module name '$($starter_module_name)' does not exist in the starter configuration. Please check your input and try again."
+            }
+
+            Write-Verbose "Selected Starter: $starter_module_name"
+            $starterModulePath = (Resolve-Path (Join-Path -Path $starterPath -ChildPath $chosenStarterConfig.location)).Path
+            $starterRootModuleFolderPath = $starterModulePath
+            Write-Verbose "Starter Module Path: $starterModulePath"
+
+            if($chosenStarterConfig.PSObject.Properties.Name -contains "additional_retained_folders") {
+                $starterFoldersToRetain = $chosenStarterConfig.additional_retained_folders
+                Write-Verbose "Starter Additional folders to retain: $($starterFoldersToRetain -join ",")"
+            }
+
+            if($chosenStarterConfig.PSObject.Properties.Name -contains "root_module_folder") {
+                $starterRootModuleFolder = $chosenStarterConfig.root_module_folder
+
+                # Retain the root module folder
+                $starterFoldersToRetain += $starterRootModuleFolder
+
+                # Add the root module folder to bootstrap input config
+                $inputConfig | Add-Member -NotePropertyName "root_module_folder_relative_path" -NotePropertyValue @{
+                    Value  = $starterRootModuleFolder
+                    Source = "caluated"
+                }
+
+                # Set the starter root module folder full path
+                $starterRootModuleFolderPath = Join-Path -Path $starterModulePath -ChildPath $starterRootModuleFolder
+
+                Write-Verbose "Starter root module folder: $starterRootModuleFolder"
+                Write-Verbose "Starter final folders to retain: $($starterFoldersToRetain -join ",")"
+            }
+        }
+
+        # Getting configuration for the bootstrap module user input
+        $bootstrapParameters = [PSCustomObject]@{}
+
+        Write-Verbose "Getting the bootstrap configuration..."
+        $terraformFiles = Get-ChildItem -Path $bootstrapModulePath -Filter "*.tf" -File
+        foreach($terraformFile in $terraformFiles) {
+            $bootstrapParameters = Convert-HCLVariablesToInputConfig -targetVariableFile $terraformFile.FullName -hclParserToolPath $hclParserToolPath -appendToObject $bootstrapParameters
+        }
+
+        # Getting the configuration for the starter module user input
+        $starterParameters  = [PSCustomObject]@{}
+
+        if($hasStarter) {
+            Write-Verbose "Getting the starter configuration..."
+            if($iac -eq "terraform") {
+                $terraformFiles = Get-ChildItem -Path $starterRootModuleFolderPath -Filter "*.tf" -File
+                foreach($terraformFile in $terraformFiles) {
+                    $starterParameters = Convert-HCLVariablesToInputConfig -targetVariableFile $terraformFile.FullName -hclParserToolPath $hclParserToolPath -appendToObject $starterParameters
+                }
+            }
+
+            if ($iac -like "bicep*") {
+                $starterParameters = Convert-BicepConfigToInputConfig -bicepConfig $starterConfig.starter_modules.Value.$($inputConfig.starter_module_name.Value)
+            }
+        }
+
+        # Set computed inputs
+        $inputConfig | Add-Member -NotePropertyName "module_folder_path" -NotePropertyValue @{
+            Value  = $starterModulePath
+            Source = "calculated"
+        }
+
+        if($inputConfig.PSObject.Properties.Name -contains "starter_locations") {
+            $availabilityZonesStarter = @()
+            foreach($region in $inputConfig.starter_locations.Value) {
+                $availabilityZonesStarter += , @(Get-AvailabilityZonesSupport -region $region -zonesSupport $zonesSupport)
+            }
+            $inputConfig | Add-Member -NotePropertyName "availability_zones_starter" -NotePropertyValue @{
+                Value  = $availabilityZonesStarter
+                Source = "calculated"
+            }
+        }
+
+        Write-Verbose "Final Input config: $(ConvertTo-SafeLogString $inputConfig)"
+
+        # Getting the input for the bootstrap module
+        Write-Verbose "Setting the configuration for the bootstrap module..."
+        $bootstrapConfiguration = Set-Config `
+            -configurationParameters $bootstrapParameters `
+            -inputConfig $inputConfig
+
+        # Getting the input for the starter module
+        Write-Verbose "Setting the configuration for the starter module..."
+        $starterConfiguration = Set-Config `
+            -configurationParameters $starterParameters `
+            -inputConfig $inputConfig `
+            -copyEnvVarToConfig
+
+        Write-Verbose "Final Starter Parameters: $(ConvertTo-SafeLogString $starterParameters)"
+
+        # Creating the tfvars files for the bootstrap and starter module
+        $tfVarsFileName = "terraform.tfvars.json"
+        $bootstrapTfvarsPath = Join-Path -Path $bootstrapModulePath -ChildPath $tfVarsFileName
+        $starterTfvarsPath = Join-Path -Path $starterRootModuleFolderPath -ChildPath "terraform.tfvars.json"
+        $starterBicepVarsFileName = "parameters.json"
+        $starterBicepAllVarsFileName = "template-parameters.json"
+        $starterBicepVarsPath = Join-Path -Path $starterModulePath -ChildPath $starterBicepVarsFileName
+        $starterBicepAllVarsPath = Join-Path -Path $starterModulePath -ChildPath $starterBicepAllVarsFileName
+
+        # Write the tfvars file for the bootstrap and starter module
+        Write-TfvarsJsonFile -tfvarsFilePath $bootstrapTfvarsPath -configuration $bootstrapConfiguration
+
+        if($iac -eq "terraform") {
+            if($starterFoldersToRetain.Length -gt 0) {
+                Write-Verbose "Removing unwanted folders from the starter module..."
+                $folders = Get-ChildItem -Path $starterModulePath -Directory
+                foreach($folder in $folders) {
+                    if($starterFoldersToRetain -notcontains $folder.Name) {
+                        Write-Verbose "Removing folder: $($folder.FullName)"
+                        Remove-Item -Path $folder.FullName -Recurse -Force
+                    } else {
+                        Write-Verbose "Retaining folder: $($folder.FullName)"
+                        Remove-TerraformMetaFileSet -path $folder.FullName -writeVerboseLogs:$writeVerboseLogs.IsPresent
+                    }
+                }
+            }
+            Remove-TerraformMetaFileSet -path $starterModulePath -writeVerboseLogs:$writeVerboseLogs.IsPresent
+            if($convertTfvarsToJson) {
+                Write-TfvarsJsonFile -tfvarsFilePath $starterTfvarsPath -configuration $starterConfiguration
+            } else {
+                $inputsFromTfvars = $inputConfig.PSObject.Properties | Where-Object { $_.Value.Source -eq ".tfvars" } | Select-Object -ExpandProperty Name
+                Write-TfvarsJsonFile -tfvarsFilePath $starterTfvarsPath -configuration $starterConfiguration -skipItems $inputsFromTfvars
+                foreach($inputConfigFilePath in $inputConfigFilePaths | Where-Object { $_ -like "*.tfvars" }) {
+                    $fileName = [System.IO.Path]::GetFileName($inputConfigFilePath)
+                    $fileName = $fileName.Replace(".tfvars", ".auto.tfvars")
+                    $destination = Join-Path -Path $starterRootModuleFolderPath -ChildPath $fileName
+                    Write-Verbose "Copying tfvars file $inputConfigFilePath to $destination"
+                    Copy-Item -Path $inputConfigFilePath -Destination $destination -Force
+                }
+            }
+
+            # Copy additional files
+            foreach($additionalFile in $starterAdditionalFiles) {
+                if(Test-Path $additionalFile -PathType Container) {
+                    $folderName = ([System.IO.DirectoryInfo]::new($additionalFile)).Name
+                    $destination = Join-Path -Path $starterRootModuleFolderPath -ChildPath $folderName
+                    Write-Verbose "Copying folder $additionalFile to $destination"
+                    Copy-Item -Path "$additionalFile/*" -Destination $destination -Recurse -Force
+                } else {
+                    $fileName = [System.IO.Path]::GetFileName($additionalFile)
+                    $destination = Join-Path -Path $starterRootModuleFolderPath -ChildPath $fileName
+                    Write-Verbose "Copying file $additionalFile to $destination"
+                    Copy-Item -Path $additionalFile -Destination $destination -Force
+                }
+            }
+        }
+
+        if ($iac -like "bicep*") {
+            if($iac -ne "bicep") {
+                Copy-ParametersFileCollection -starterPath $starterModulePath -configFiles $starterConfig.starter_modules.Value.$($inputConfig.starter_module_name.Value).deployment_files
+            }
+            Set-ComputedConfiguration -configuration $starterConfiguration
+            Edit-ALZConfigurationFilesInPlace -alzEnvironmentDestination $starterModulePath -configuration $starterConfiguration
+            Write-JsonFile -jsonFilePath $starterBicepVarsPath -configuration $starterConfiguration
+            Write-JsonFile -jsonFilePath $starterBicepAllVarsPath -configuration @($inputConfig, $starterConfiguration, $bootstrapConfiguration) -all
+
+            # Remove unrequired files
+            $foldersOrFilesToRetain = $starterConfig.starter_modules.Value.$($inputConfig.starter_module_name.Value).folders_or_files_to_retain
+            $foldersOrFilesToRetain += $starterBicepVarsFileName
+            $foldersOrFilesToRetain += $starterBicepAllVarsFileName
+            $foldersOrFilesToRetain += "config"
+            $foldersOrFilesToRetain += ".config"
+
+            foreach ($deployment_file in $starterConfig.starter_modules.Value.$($inputConfig.starter_module_name.Value).deployment_files) {
+                $foldersOrFilesToRetain += $deployment_file.templateParametersSourceFilePath
+            }
+
+            $subFoldersOrFilesToRemove = $starterConfig.starter_modules.Value.$($inputConfig.starter_module_name.Value).subfolders_or_files_to_remove
+
+            Remove-UnrequiredFileSet -path $starterModulePath -foldersOrFilesToRetain $foldersOrFilesToRetain -subFoldersOrFilesToRemove $subFoldersOrFilesToRemove -writeVerboseLogs:$writeVerboseLogs.IsPresent
+        }
+
+
+        Write-ToConsoleLog "Bootstrap has completed successfully! Thanks for using our tool. Head over to Phase 3 in the documentation to continue..." -IsSuccess -NewLine
+    }
+}
