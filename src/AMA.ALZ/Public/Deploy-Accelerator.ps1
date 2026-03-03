@@ -318,7 +318,7 @@ function Deploy-Accelerator {
         } else {
             Write-ToConsoleLog "Checking you have the latest version of Terraform installed..." -IsSuccess
             Get-TerraformTool -version "latest" -toolsPath $toolsPath
-            $hclParserToolPath = Get-HCLParserTool -toolVersion "v0.6.0" -toolsPath $toolsPath
+            $hclParserToolPath = Get-HCLParserTool -toolVersion "v0.6.8" -toolsPath $toolsPath
         }
 
         # Get User Inputs from the input config file
