@@ -32,7 +32,10 @@ function New-FolderStructure {
         [int] $retryIntervalSeconds = 3,
 
         [Parameter(Mandatory = $false)]
-        [int] $httpRequestTimeoutSeconds
+        [int] $httpRequestTimeoutSeconds,
+
+        [Parameter(Mandatory = $false)]
+        [string] $githubToken
     )
 
     if ($PSCmdlet.ShouldProcess("ALZ-Terraform module configuration", "modify")) {
@@ -72,6 +75,9 @@ function New-FolderStructure {
             }
             if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
                 $releaseParams["httpRequestTimeoutSeconds"] = $httpRequestTimeoutSeconds
+            }
+            if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+                $releaseParams["githubToken"] = $githubToken
             }
             $releaseTag = Get-GithubRelease @releaseParams
             $path = Join-Path $targetDirectory $targetFolder $releaseTag

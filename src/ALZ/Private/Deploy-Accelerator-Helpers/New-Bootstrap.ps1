@@ -34,6 +34,9 @@ function New-Bootstrap {
         [Parameter(Mandatory = $false)]
         [switch] $destroy,
 
+        [Parameter(Mandatory = $false)]
+        [PSCustomObject] $zonesSupport = $null,
+
         [Parameter(Mandatory = $false, HelpMessage = "An extra level of logging that is turned off by default for easier debugging.")]
         [switch]
         $writeVerboseLogs,
@@ -56,7 +59,11 @@ function New-Bootstrap {
 
         [Parameter(Mandatory = $false)]
         [switch]
-        $cleanBootstrapFolder
+        $cleanBootstrapFolder,
+
+        [Parameter(Mandatory = $false, HelpMessage = "Skips running terraform init and apply. Used when only the working file set should be generated.")]
+        [switch]
+        $skipTerraformApply
     )
 
     if ($PSCmdlet.ShouldProcess("ALZ-Terraform module configuration", "modify")) {
@@ -163,21 +170,27 @@ function New-Bootstrap {
             Sensitive = $false
         }
 
-        if ($iac -eq "bicep-classic" -and $inputConfig.PSObject.Properties.Name -contains "starter_locations") {
-            # Get the supported regions and availability zones
-            Write-Verbose "Getting Supported Regions and Availability Zones with Terraform"
-            $regionsAndZones = Get-AzureRegionData -toolsPath $toolsPath
-            Write-Verbose "Supported Regions: $($regionsAndZones.supportedRegions)"
-            $zonesSupport = $regionsAndZones.zonesSupport
-
-            $availabilityZonesStarter = @()
-            foreach ($region in $inputConfig.starter_locations.Value) {
-                $availabilityZonesStarter += , @(Get-AvailabilityZonesSupport -region $region -zonesSupport $zonesSupport)
+        if ($inputConfig.PSObject.Properties.Name -contains "starter_locations") {
+            # Use the supplied zones support when provided (e.g. from New-Platform-Landing-Zone),
+            # otherwise compute it for the legacy bicep-classic path.
+            if (($null -eq $zonesSupport) -and ($iac -eq "bicep-classic")) {
+                # Get the supported regions and availability zones
+                Write-Verbose "Getting Supported Regions and Availability Zones with Terraform"
+                $regionsAndZones = Get-AzureRegionData -toolsPath $toolsPath
+                Write-Verbose "Supported Regions: $($regionsAndZones.supportedRegions)"
+                $zonesSupport = $regionsAndZones.zonesSupport
             }
-            $inputConfig | Add-Member -NotePropertyName "availability_zones_starter" -NotePropertyValue @{
-                Value     = $availabilityZonesStarter
-                Source    = "calculated"
-                Sensitive = $false
+
+            if ($null -ne $zonesSupport) {
+                $availabilityZonesStarter = @()
+                foreach ($region in $inputConfig.starter_locations.Value) {
+                    $availabilityZonesStarter += , @(Get-AvailabilityZonesSupport -region $region -zonesSupport $zonesSupport)
+                }
+                $inputConfig | Add-Member -NotePropertyName "availability_zones_starter" -NotePropertyValue @{
+                    Value     = $availabilityZonesStarter
+                    Source    = "calculated"
+                    Sensitive = $false
+                }
             }
         }
 
@@ -283,21 +296,25 @@ function New-Bootstrap {
         }
 
         # Running terraform init and apply
-        Write-ToConsoleLog "Thank you for providing those inputs, we are now initializing and applying Terraform to bootstrap your environment..." -IsSuccess
-
-        # Get bootstrap_subscription_id from inputConfig if available
-        $bootstrapSubscriptionId = ""
-        if ($null -ne $inputConfig.bootstrap_subscription_id -and $null -ne $inputConfig.bootstrap_subscription_id.Value) {
-            $bootstrapSubscriptionId = $inputConfig.bootstrap_subscription_id.Value
-        }
-
-        if ($autoApprove) {
-            Invoke-Terraform -moduleFolderPath $bootstrapModulePath -autoApprove -destroy:$destroy.IsPresent -bootstrapSubscriptionId $bootstrapSubscriptionId
+        if ($skipTerraformApply.IsPresent) {
+            Write-ToConsoleLog "Bootstrap has completed successfully! Thanks for using our tool. Head over to Phase 3 in the documentation to continue..." -IsSuccess -NewLine
         } else {
-            Write-ToConsoleLog "Once the plan is complete you will be prompted to confirm the apply." -IsSuccess
-            Invoke-Terraform -moduleFolderPath $bootstrapModulePath -destroy:$destroy.IsPresent -bootstrapSubscriptionId $bootstrapSubscriptionId
-        }
+            Write-ToConsoleLog "Thank you for providing those inputs, we are now initializing and applying Terraform to bootstrap your environment..." -IsSuccess
 
-        Write-ToConsoleLog "Bootstrap has completed successfully! Thanks for using our tool. Head over to Phase 3 in the documentation to continue..." -IsSuccess
+            # Get bootstrap_subscription_id from inputConfig if available
+            $bootstrapSubscriptionId = ""
+            if ($null -ne $inputConfig.bootstrap_subscription_id -and $null -ne $inputConfig.bootstrap_subscription_id.Value) {
+                $bootstrapSubscriptionId = $inputConfig.bootstrap_subscription_id.Value
+            }
+
+            if ($autoApprove) {
+                Invoke-Terraform -moduleFolderPath $bootstrapModulePath -autoApprove -destroy:$destroy.IsPresent -bootstrapSubscriptionId $bootstrapSubscriptionId
+            } else {
+                Write-ToConsoleLog "Once the plan is complete you will be prompted to confirm the apply." -IsSuccess
+                Invoke-Terraform -moduleFolderPath $bootstrapModulePath -destroy:$destroy.IsPresent -bootstrapSubscriptionId $bootstrapSubscriptionId
+            }
+
+            Write-ToConsoleLog "Bootstrap has completed successfully! Thanks for using our tool. Head over to Phase 3 in the documentation to continue..." -IsSuccess
+        }
     }
 }

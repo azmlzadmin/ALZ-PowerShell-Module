@@ -57,7 +57,11 @@ function Get-GithubRelease {
 
         [Parameter(Mandatory = $false, HelpMessage = "Timeout in seconds for HTTP requests.")]
         [int]
-        $httpRequestTimeoutSeconds
+        $httpRequestTimeoutSeconds,
+
+        [Parameter(Mandatory = $false, HelpMessage = "An explicit GitHub token to use for authentication.")]
+        [string]
+        $githubToken
     )
 
     $parentDirectory = $targetDirectory
@@ -72,6 +76,9 @@ function Get-GithubRelease {
     }
     if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
         $releaseTagParams["httpRequestTimeoutSeconds"] = $httpRequestTimeoutSeconds
+    }
+    if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+        $releaseTagParams["githubToken"] = $githubToken
     }
     $releaseResult = Get-GithubReleaseTag @releaseTagParams
     $releaseTag = $releaseResult.ReleaseTag
@@ -117,6 +124,9 @@ function Get-GithubRelease {
             }
             if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
                 $downloadParams["TimeoutSec"] = $httpRequestTimeoutSeconds
+            }
+            if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+                $downloadParams["GitHubToken"] = $githubToken
             }
             Invoke-GitHubApiRequest @downloadParams
 

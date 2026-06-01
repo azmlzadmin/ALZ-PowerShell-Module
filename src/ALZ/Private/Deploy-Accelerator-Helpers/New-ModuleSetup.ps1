@@ -29,7 +29,9 @@ function New-ModuleSetup {
         [Parameter(Mandatory = $false)]
         [int]$retryIntervalSeconds = 3,
         [Parameter(Mandatory = $false)]
-        [int]$httpRequestTimeoutSeconds
+        [int]$httpRequestTimeoutSeconds,
+        [Parameter(Mandatory = $false)]
+        [string]$githubToken
     )
 
     if ($PSCmdlet.ShouldProcess("Check and get module", "modify")) {
@@ -63,6 +65,9 @@ function New-ModuleSetup {
             if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
                 $folderParams["httpRequestTimeoutSeconds"] = $httpRequestTimeoutSeconds
             }
+            if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+                $folderParams["githubToken"] = $githubToken
+            }
             return New-FolderStructure @folderParams
         }
 
@@ -76,6 +81,9 @@ function New-ModuleSetup {
             }
             if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
                 $releaseTagParams["httpRequestTimeoutSeconds"] = $httpRequestTimeoutSeconds
+            }
+            if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+                $releaseTagParams["githubToken"] = $githubToken
             }
             $latestResult = Get-GithubReleaseTag @releaseTagParams
             $latestReleaseTag = $latestResult.ReleaseTag
@@ -170,6 +178,9 @@ function New-ModuleSetup {
             }
             if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
                 $downloadFolderParams["httpRequestTimeoutSeconds"] = $httpRequestTimeoutSeconds
+            }
+            if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+                $downloadFolderParams["githubToken"] = $githubToken
             }
             $versionAndPath = New-FolderStructure @downloadFolderParams
 

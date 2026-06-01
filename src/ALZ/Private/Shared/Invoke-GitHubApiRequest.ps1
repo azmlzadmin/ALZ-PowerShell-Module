@@ -68,6 +68,9 @@ function Invoke-GitHubApiRequest {
         [Parameter(Mandatory = $false, HelpMessage = "Timeout in seconds for the HTTP request.")]
         [int] $TimeoutSec,
 
+        [Parameter(Mandatory = $false, HelpMessage = "An explicit GitHub token to use for authentication. Takes precedence over the GitHub CLI token.")]
+        [string] $GitHubToken,
+
         [Parameter(Mandatory = $false, HelpMessage = "If specified, does not throw on HTTP error status codes.")]
         [switch] $SkipHttpErrorCheck
     )
@@ -75,21 +78,26 @@ function Invoke-GitHubApiRequest {
     # Build auth headers from gh CLI if available
     $headers = @{}
     $usedGhToken = $false
-    $ghCommand = Get-Command "gh" -ErrorAction SilentlyContinue
-    if ($null -ne $ghCommand) {
-        $null = & gh auth status 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            $token = & gh auth token 2>&1
-            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($token)) {
-                $headers["Authorization"] = "Bearer $($token.Trim())"
-                $usedGhToken = $true
-                Write-Verbose "GitHub CLI authentication token found. Using authenticated requests."
+    if (-not [string]::IsNullOrWhiteSpace($GitHubToken)) {
+        $headers["Authorization"] = "Bearer $($GitHubToken.Trim())"
+        Write-Verbose "Explicit GitHub token provided. Using authenticated requests."
+    } else {
+        $ghCommand = Get-Command "gh" -ErrorAction SilentlyContinue
+        if ($null -ne $ghCommand) {
+            $null = & gh auth status 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                $token = & gh auth token 2>&1
+                if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($token)) {
+                    $headers["Authorization"] = "Bearer $($token.Trim())"
+                    $usedGhToken = $true
+                    Write-Verbose "GitHub CLI authentication token found. Using authenticated requests."
+                }
+            } else {
+                Write-Verbose "GitHub CLI is installed but not authenticated. Proceeding without authentication."
             }
         } else {
-            Write-Verbose "GitHub CLI is installed but not authenticated. Proceeding without authentication."
+            Write-Verbose "GitHub CLI is not installed. Proceeding without authentication."
         }
-    } else {
-        Write-Verbose "GitHub CLI is not installed. Proceeding without authentication."
     }
 
     # Build parameters for the generic retry cmdlet

@@ -87,6 +87,7 @@ Included Cmdlets:
     FunctionsToExport    = @(
         'Test-AcceleratorRequirement',
         'Deploy-Accelerator',
+        'New-Platform-Landing-Zone',
         'Grant-SubscriptionCreatorRole',
         'Remove-PlatformLandingZone',
         'New-AcceleratorFolderStructure',

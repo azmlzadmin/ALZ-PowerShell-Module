@@ -41,7 +41,11 @@ function Get-GithubReleaseTag {
 
         [Parameter(Mandatory = $false, HelpMessage = "Timeout in seconds for HTTP requests.")]
         [int]
-        $httpRequestTimeoutSeconds
+        $httpRequestTimeoutSeconds,
+
+        [Parameter(Mandatory = $false, HelpMessage = "An explicit GitHub token to use for authentication.")]
+        [string]
+        $githubToken
     )
 
     # Split Repo URL into parts
@@ -64,6 +68,9 @@ function Get-GithubReleaseTag {
     }
     if ($PSBoundParameters.ContainsKey("httpRequestTimeoutSeconds")) {
         $apiParams["TimeoutSec"] = $httpRequestTimeoutSeconds
+    }
+    if (-not [string]::IsNullOrWhiteSpace($githubToken)) {
+        $apiParams["GitHubToken"] = $githubToken
     }
     $response = Invoke-GitHubApiRequest @apiParams
     $releaseData = $response.Result
